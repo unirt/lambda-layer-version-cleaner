@@ -1,6 +1,14 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-lambda",
+      "type": "build"
+    },
+    {
+      "name": "@types/aws-lambda",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "version": "^27",
       "type": "build"
@@ -22,12 +30,16 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "2.1.0",
+      "version": "2.72.1",
       "type": "build"
     },
     {
       "name": "constructs",
       "version": "10.0.5",
+      "type": "build"
+    },
+    {
+      "name": "esbuild",
       "type": "build"
     },
     {
@@ -109,7 +121,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.1.0",
+      "version": "^2.72.1",
       "type": "peer"
     },
     {
