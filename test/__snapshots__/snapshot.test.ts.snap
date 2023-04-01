@@ -30,6 +30,7 @@ Object {
           },
         },
         "Handler": "index.handler",
+        "MemorySize": 256,
         "Role": Object {
           "Fn::GetAtt": Array [
             "LambdaLayerVersionCleanerDeleteOldLambdaLayerVersionsFunctionServiceRoleEDFD15B3",
@@ -37,6 +38,7 @@ Object {
           ],
         },
         "Runtime": "nodejs18.x",
+        "Timeout": 900,
       },
       "Type": "AWS::Lambda::Function",
     },

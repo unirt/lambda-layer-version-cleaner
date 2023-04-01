@@ -7,11 +7,43 @@ import * as logs from 'aws-cdk-lib/aws-logs';
 import { Construct } from 'constructs';
 import { DeleteOldLambdaLayerVersionsFunction } from './lambda/delete-old-lambda-layer-versions-function';
 
+/**
+ * Properties for `LambdaLayerVersionCleaner`
+ */
 export interface ILambdaLayerVersionCleanerProps {
-  retainVersions?: string; // Number of versions to retain (default is 10)
-  layerCleanerSchedule?: events.Schedule; // Schedule for the function execution (default is once per day)
+  /**
+   * Number of versions to retain (default is 10)
+   * @default "10"
+   */
+  retainVersions?: string;
+
+  /**
+   * Schedule for the function execution (default is once per day)
+   * @default events.Schedule.rate(cdk.Duration.days(1))
+   */
+  layerCleanerSchedule?: events.Schedule;
+
+  /**
+   * Maximum allowed runtime for the Lambda function (default is 15 minutes)
+   * @default cdk.Duration.minutes(15)
+   */
+  handlerTimeout?: cdk.Duration;
+
+  /**
+   * Amount of memory allocated to the Lambda function (default is 256MB)
+   * @default 256
+   */
+  handlerMemorySize?: number;
 }
 
+/**
+ * Lambda Layer Version Cleaner Construct
+ *
+ * This construct creates a Lambda function that deletes old versions of a Lambda Layer. The function is
+ * scheduled to run at a regular interval using an EventBridge rule. The number of versions to retain, as
+ * well as the function execution schedule, can be customized using the `ILambdaLayerVersionCleanerProps`
+ * interface.
+ */
 export class LambdaLayerVersionCleaner extends Construct {
   readonly handler: lambda.Function;
   readonly rule: events.Rule;
@@ -22,6 +54,8 @@ export class LambdaLayerVersionCleaner extends Construct {
     // Create the Lambda function to delete old layer versions
     this.handler = new DeleteOldLambdaLayerVersionsFunction(this, 'DeleteOldLambdaLayerVersionsFunction', {
       environment: { RETAIN_VERSIONS: props?.retainVersions ?? '10' }, // Set default retainVersions to 10
+      timeout: props?.handlerTimeout ?? cdk.Duration.minutes(15), // Set default timeout to 15 minutes
+      memorySize: props?.handlerMemorySize ?? 256, // Set default memory size to 256MB
     });
 
     // Create the LogGroup for the Lambda function

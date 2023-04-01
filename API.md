@@ -4,6 +4,13 @@
 
 ### LambdaLayerVersionCleaner <a name="LambdaLayerVersionCleaner" id="lambda-layer-version-cleaner.LambdaLayerVersionCleaner"></a>
 
+Lambda Layer Version Cleaner Construct.
+
+This construct creates a Lambda function that deletes old versions of a Lambda Layer. The function is
+scheduled to run at a regular interval using an EventBridge rule. The number of versions to retain, as
+well as the function execution schedule, can be customized using the `ILambdaLayerVersionCleanerProps`
+interface.
+
 #### Initializers <a name="Initializers" id="lambda-layer-version-cleaner.LambdaLayerVersionCleaner.Initializer"></a>
 
 ```typescript
@@ -131,13 +138,43 @@ public readonly rule: Rule;
 
 - *Implemented By:* <a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps">ILambdaLayerVersionCleanerProps</a>
 
+Properties for `LambdaLayerVersionCleaner`.
+
 
 #### Properties <a name="Properties" id="Properties"></a>
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.layerCleanerSchedule">layerCleanerSchedule</a></code> | <code>aws-cdk-lib.aws_events.Schedule</code> | *No description.* |
-| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.retainVersions">retainVersions</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.handlerMemorySize">handlerMemorySize</a></code> | <code>number</code> | Amount of memory allocated to the Lambda function (default is 256MB). |
+| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.handlerTimeout">handlerTimeout</a></code> | <code>aws-cdk-lib.Duration</code> | Maximum allowed runtime for the Lambda function (default is 15 minutes). |
+| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.layerCleanerSchedule">layerCleanerSchedule</a></code> | <code>aws-cdk-lib.aws_events.Schedule</code> | Schedule for the function execution (default is once per day). |
+| <code><a href="#lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.retainVersions">retainVersions</a></code> | <code>string</code> | Number of versions to retain (default is 10). |
+
+---
+
+##### `handlerMemorySize`<sup>Optional</sup> <a name="handlerMemorySize" id="lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.handlerMemorySize"></a>
+
+```typescript
+public readonly handlerMemorySize: number;
+```
+
+- *Type:* number
+- *Default:* 256
+
+Amount of memory allocated to the Lambda function (default is 256MB).
+
+---
+
+##### `handlerTimeout`<sup>Optional</sup> <a name="handlerTimeout" id="lambda-layer-version-cleaner.ILambdaLayerVersionCleanerProps.property.handlerTimeout"></a>
+
+```typescript
+public readonly handlerTimeout: Duration;
+```
+
+- *Type:* aws-cdk-lib.Duration
+- *Default:* cdk.Duration.minutes(15)
+
+Maximum allowed runtime for the Lambda function (default is 15 minutes).
 
 ---
 
@@ -148,6 +185,9 @@ public readonly layerCleanerSchedule: Schedule;
 ```
 
 - *Type:* aws-cdk-lib.aws_events.Schedule
+- *Default:* events.Schedule.rate(cdk.Duration.days(1))
+
+Schedule for the function execution (default is once per day).
 
 ---
 
@@ -158,6 +198,9 @@ public readonly retainVersions: string;
 ```
 
 - *Type:* string
+- *Default:* "10"
+
+Number of versions to retain (default is 10).
 
 ---
 
