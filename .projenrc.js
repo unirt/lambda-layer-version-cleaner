@@ -1,7 +1,7 @@
 const { awscdk } = require('projen');
 
 const PROJECT_NAME = 'lambda-layer-version-cleaner';
-const PROJECT_DESCRIPTION = 'A serverless application to automatically manage and delete old AWS Lambda Layer versions, retaining only the specified number of most recent versions.';
+const PROJECT_DESCRIPTION = 'lambda-layer-version-cleaner is a CDK Construct that helps you manage and automatically clean up old versions of AWS Lambda Layers.';
 
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'unirt',
