@@ -11,6 +11,9 @@ export const handler: Handler = async (_event: any, _context: Context) => {
   }
 
   const retainVersions = parseInt(retainVersionStr, 10);
+  let successfulDeletes = 0;
+  let failedDeletes = 0;
+  let failedLayerNames: string[] = [];
 
   try {
     // List all Lambda layers
@@ -22,19 +25,31 @@ export const handler: Handler = async (_event: any, _context: Context) => {
     }
 
     // Iterate over each layer
-    layers.Layers.forEach(async (layer) => {
+    for (const layer of layers.Layers) {
       if (layer.LayerName === undefined) {
         console.log('Layer name is undefined.');
-        return;
+        continue;
       }
 
+      console.log(`Processing layer: ${layer.LayerName}`);
+
       // List versions for the current layer
-      const listLayerVersionsCmd = new ListLayerVersionsCommand({ LayerName: layer.LayerName });
-      const layerVersions = await client.send(listLayerVersionsCmd);
-      if (layerVersions.LayerVersions === undefined || layerVersions.LayerVersions.length <= retainVersions) {
-        console.log(`Layer: ${layer.LayerName} - Keeping all versions. No action needed.`);
-        return;
+      let layerVersions;
+      try {
+        const listLayerVersionsCmd = new ListLayerVersionsCommand({ LayerName: layer.LayerName });
+        layerVersions = await client.send(listLayerVersionsCmd);
+        if (layerVersions.LayerVersions === undefined || layerVersions.LayerVersions.length <= retainVersions) {
+          console.log(`Layer: ${layer.LayerName} - Keeping all versions. No action needed.`);
+          continue;
+        }
+      } catch (error) {
+        console.error(`Error listing versions for layer ${layer.LayerName}:`, error);
+        failedDeletes++;
+        failedLayerNames.push(layer.LayerName);
+        continue;
       }
+
+      console.log(`Current total versions: ${layerVersions.LayerVersions.length}`);
 
       // Sort layer versions in ascending order
       const sortedVersions = layerVersions.LayerVersions.sort((a, b) => {
@@ -45,19 +60,29 @@ export const handler: Handler = async (_event: any, _context: Context) => {
 
       // Identify versions to delete and delete them
       const versionsToDelete = sortedVersions.slice(0, sortedVersions.length - retainVersions);
-      versionsToDelete.forEach(async (version) => {
+      for (const version of versionsToDelete) {
         if (version.Version === undefined) {
           console.log('Version number is undefined.');
-          return;
+          continue;
         }
 
-        const deleteLayerVersionCmd = new DeleteLayerVersionCommand({ LayerName: layer.LayerName, VersionNumber: version.Version });
-        await client.send(deleteLayerVersionCmd);
-        console.log(`Deleted version ${version.Version} of layer ${layer.LayerName}.`);
-      });
-    });
+        try {
+          const deleteLayerVersionCmd = new DeleteLayerVersionCommand({ LayerName: layer.LayerName, VersionNumber: version.Version });
+          await client.send(deleteLayerVersionCmd);
+          console.log(`Deleted version ${version.Version} of layer ${layer.LayerName}.`);
+          successfulDeletes++;
+        } catch (error) {
+          console.error(`Error deleting version ${version.Version} of layer ${layer.LayerName}:`, error);
+          failedDeletes++;
+          failedLayerNames.push(layer.LayerName);
+        }
+      };
+    };
   } catch (error) {
     console.error('Error occurred:', error);
     throw error;
+  } finally {
+    console.log(`Summary: ${successfulDeletes} successful deletes, ${failedDeletes} failed deletes.`);
+    console.log(`Failed layer names: ${failedLayerNames.join(', ')}`);
   }
 };
