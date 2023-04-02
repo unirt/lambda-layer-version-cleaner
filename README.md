@@ -15,7 +15,7 @@ For Python projects:
 pip install lambda-layer-version-cleaner
 ```
 ## Usage
-To use the `LambdaLayerVersionCleaner` in your CDK project, simply import it and add it to your stack.
+To use the `LambdaLayerVersionCleaner` in your CDK project, simply import it and add it to your stack. Note that the cleaner will delete old versions of Lambda Layers even if they are associated with Lambda functions. Please ensure that you are aware of this behavior before using the cleaner in your project.
 ### JavaScript / TypeScript
 ```javascript
 import * as cdk from 'aws-cdk-lib';
