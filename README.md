@@ -26,7 +26,7 @@ const app = new cdk.App();
 const stack = new cdk.Stack(app, 'ExampleStack');
 
 new LambdaLayerVersionCleaner(stack, 'LambdaLayerVersionCleaner', {
-  retainVersions: '5',
+  retainVersions: 10,
   layerCleanerSchedule: events.Schedule.rate(cdk.Duration.days(7)),
 });
 ```
@@ -41,13 +41,17 @@ app = cdk.App()
 stack = cdk.Stack(app, "ExampleStack")
 
 LambdaLayerVersionCleaner(stack, "LambdaLayerVersionCleaner",
-    retain_versions="5",
+    retain_versions=10,
     layer_cleaner_schedule=Schedule.rate(Duration.days(7))
 )
 
 app.synth()
 ```
 ## Configuration
-The `LambdaLayerVersionCleaner` construct takes two optional parameters:
-- `retainVersions` (default: `'5'`): The number of layer versions to retain, specified as a string containing a positive integer. The cleaner will delete older versions beyond this count. Note that this value should be a string, not a number. If not specified, the default is '5'. Note that if a Layer has only one version, it won't be deleted.
-- `layerCleanerSchedule` (default: `events.Schedule.rate(cdk.Duration.days(1))`): The schedule for running the cleanup process. If not specified, the default is to run once per day.
+The `LambdaLayerVersionCleaner` construct takes two required parameters and two optional parameters:
+- `retainVersions`: The number of layer versions to retain, specified as a positive integer. The cleaner will delete older versions beyond this count. Note that if a Layer has only one version, it won't be deleted.
+- `layerCleanerSchedule`: The schedule for running the cleanup process.
+
+The optional parameters are:
+- `handlerTimeout` (default: `cdk.Duration.minutes(15)`): Maximum allowed runtime for the Lambda function.
+- `handlerMemorySize` (default: `256`): Amount of memory allocated to the Lambda function.

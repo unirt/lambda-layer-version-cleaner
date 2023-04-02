@@ -119,7 +119,7 @@ Object {
     },
     "LambdaLayerVersionCleanerLayerCleanerScheduleRule19B25384": Object {
       "Properties": Object {
-        "ScheduleExpression": "rate(1 day)",
+        "ScheduleExpression": "rate(7 days)",
         "State": "ENABLED",
         "Targets": Array [
           Object {

@@ -12,16 +12,14 @@ import { DeleteOldLambdaLayerVersionsFunction } from './lambda/delete-old-lambda
  */
 export interface ILambdaLayerVersionCleanerProps {
   /**
-   * Number of versions to retain (default is 10)
-   * @default "10"
+   * Number of versions to retain (no default value, must be a positive integer)
    */
-  retainVersions?: string;
+  retainVersions: number;
 
   /**
-   * Schedule for the function execution (default is once per day)
-   * @default events.Schedule.rate(cdk.Duration.days(1))
+   * Schedule for the function execution (no default value)
    */
-  layerCleanerSchedule?: events.Schedule;
+  layerCleanerSchedule: events.Schedule;
 
   /**
    * Maximum allowed runtime for the Lambda function (default is 15 minutes)
@@ -40,22 +38,27 @@ export interface ILambdaLayerVersionCleanerProps {
  * Lambda Layer Version Cleaner Construct
  *
  * This construct creates a Lambda function that deletes old versions of a Lambda Layer. The function is
- * scheduled to run at a regular interval using an EventBridge rule. The number of versions to retain, as
- * well as the function execution schedule, can be customized using the `ILambdaLayerVersionCleanerProps`
- * interface.
+ * scheduled to run at a regular interval using an EventBridge rule. The number of versions to retain
+ * must be specified as a positive integer using the `ILambdaLayerVersionCleanerProps` interface.
+ * The function execution schedule is also required to be set in the `ILambdaLayerVersionCleanerProps` interface.
  */
 export class LambdaLayerVersionCleaner extends Construct {
   readonly handler: lambda.Function;
   readonly rule: events.Rule;
 
-  constructor(scope: Construct, id: string, props?: ILambdaLayerVersionCleanerProps) {
+  constructor(scope: Construct, id: string, props: ILambdaLayerVersionCleanerProps) {
     super(scope, id);
+
+    // Check if retainVersions is a positive integer
+    if (props.retainVersions <= 0 || !Number.isInteger(props.retainVersions)) {
+      throw new Error('Invalid retainVersions value. It should be a positive integer.');
+    }
 
     // Create the Lambda function to delete old layer versions
     this.handler = new DeleteOldLambdaLayerVersionsFunction(this, 'DeleteOldLambdaLayerVersionsFunction', {
-      environment: { RETAIN_VERSIONS: props?.retainVersions ?? '10' }, // Set default retainVersions to 10
-      timeout: props?.handlerTimeout ?? cdk.Duration.minutes(15), // Set default timeout to 15 minutes
-      memorySize: props?.handlerMemorySize ?? 256, // Set default memory size to 256MB
+      environment: { RETAIN_VERSIONS: props.retainVersions.toString() },
+      timeout: props.handlerTimeout ?? cdk.Duration.minutes(15), // Set default timeout to 15 minutes
+      memorySize: props.handlerMemorySize ?? 256, // Set default memory size to 256MB
     });
 
     // Create the LogGroup for the Lambda function
@@ -74,7 +77,7 @@ export class LambdaLayerVersionCleaner extends Construct {
 
     // Create the EventBridge rule for the Lambda function execution schedule
     this.rule = new events.Rule(this, 'LayerCleanerScheduleRule', {
-      schedule: props?.layerCleanerSchedule ?? events.Schedule.rate(cdk.Duration.days(1)), // Set default schedule to once per day
+      schedule: props.layerCleanerSchedule,
     });
     this.rule.addTarget(new targets.LambdaFunction(this.handler));
 

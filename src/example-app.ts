@@ -6,6 +6,6 @@ const app = new cdk.App();
 const stack = new cdk.Stack(app, 'ExampleStack');
 
 new LambdaLayerVersionCleaner(stack, 'LambdaLayerVersionCleaner', {
-  retainVersions: '5',
+  retainVersions: 10,
   layerCleanerSchedule: events.Schedule.rate(cdk.Duration.days(7)),
 });
