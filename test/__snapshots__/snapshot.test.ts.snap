@@ -20,7 +20,7 @@ Object {
           "S3Bucket": Object {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "ab71f28b05716dfc1aa0b8c7f25e7096c2bd2248e87bc7dfb0848083ed54c8df.zip",
+          "S3Key": "a045939f7dd0480c61399fe33ff667c9cb3771f19aabbbe38593407f1adff9cf.zip",
         },
         "Description": "src/lambda/delete-old-lambda-layer-versions.lambda.ts",
         "Environment": Object {
